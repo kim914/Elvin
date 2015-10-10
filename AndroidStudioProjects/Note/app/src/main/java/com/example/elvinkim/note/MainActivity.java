@@ -37,7 +37,7 @@ public class MainActivity extends ListActivity {
         refreshNotesListView();
 
         findViewById(R.id.btnAddNote).setOnClickListener(btnAddNote_clickHandler);
-    }
+       }
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
@@ -61,7 +61,7 @@ public class MainActivity extends ListActivity {
         switch (requestCode) {
             case REQUEST_CODE_ADD_NOTE:
             case REQUEST_CODE_EDIT_NOTE:
-                if (requestCode == Activity.RESULT_OK) {
+                if (resultCode == Activity.RESULT_OK) {
                     refreshNotesListView();
                 }
                 break;

@@ -3,17 +3,24 @@ package com.example.elvinkim.note;
 import android.app.ListActivity;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -26,10 +33,46 @@ public class AtyEditNote extends ListActivity {
     private View.OnClickListener btnClickHandler = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+
+            Intent i;
+            File f;
+
             switch (v.getId()) {
                 case R.id.btnAddPhoto:
+
+                    i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    f = new File(getMediaDir(), System.currentTimeMillis() + ".jpg");
+
+                    if (!f.exists()) {
+                        try {
+                            f.createNewFile();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    currentPath = f.getAbsolutePath();
+                    i.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
+                    startActivityForResult(i, REQUEST_CODE_GET_PHOTO);
+
                     break;
                 case R.id.btnAddVideo:
+
+                    i = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+                    f = new File(getMediaDir(), System.currentTimeMillis() + ".mp4");
+
+                    if (!f.exists()) {
+                        try {
+                            f.createNewFile();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    currentPath = f.getAbsolutePath();
+                    i.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
+                    startActivityForResult(i, REQUEST_CODE_GET_VIDEO);
+
                     break;
                 case R.id.btnSave:
                     saveMedia(saveNote());
@@ -68,9 +111,13 @@ public class AtyEditNote extends ListActivity {
             etContent.setText(getIntent().getStringExtra(EXTRA_NOTE_CONTENT));
 
             Cursor c = dbRead.query(
-                    NotesDB.TABLE_NAME_MEDIA, null,
+                    NotesDB.TABLE_NAME_MEDIA,
+                    null,
                     NotesDB.COLUMN_NAME_MEDIA_OWNER_NOTE_ID + "=?",
-                    new String[]{noteId + ""}, null, null, null);
+                    new String[]{noteId + ""},
+                    null,
+                    null,
+                    null);
 
             while (c.moveToNext()) {
                 adapter.add(new MediaListCellData(
@@ -80,11 +127,36 @@ public class AtyEditNote extends ListActivity {
             adapter.notifyDataSetChanged();
         }
 
-
         findViewById(R.id.btnSave).setOnClickListener(btnClickHandler);
         findViewById(R.id.btnCancel).setOnClickListener(btnClickHandler);
         findViewById(R.id.btnAddPhoto).setOnClickListener(btnClickHandler);
         findViewById(R.id.btnAddVideo).setOnClickListener(btnClickHandler);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        switch (requestCode) {
+            case REQUEST_CODE_GET_PHOTO:
+            case REQUEST_CODE_GET_VIDEO:
+                if (resultCode == RESULT_OK) {
+                    adapter.add(new MediaListCellData(currentPath));
+                    adapter.notifyDataSetChanged();
+                }
+                break;
+            default:
+                break;
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public File getMediaDir() {
+        File dir = new File(Environment.getExternalStorageDirectory(), "NotesMedia");
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        return dir;
     }
 
     public void saveMedia(int noteId) {
@@ -101,6 +173,29 @@ public class AtyEditNote extends ListActivity {
                 dbWrite.insert(NotesDB.TABLE_NAME_MEDIA, null, cv);
             }
         }
+    }
+
+    @Override
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+
+        MediaListCellData data = adapter.getItem(position);
+        Intent i;
+
+
+        switch (data.type) {
+            case MediaType.PHOTO:
+                i = new Intent(this, AtyPhotoViewer.class);
+                i.putExtra(AtyPhotoViewer.EXTRA_PATH, data.path);
+                startActivity(i);
+                break;
+            case MediaType.VIDEO:
+                i = new Intent(this, AtyVideoViewer.class);
+                i.putExtra(AtyVideoViewer.EXTRA_PATH, data.path);
+                startActivity(i);
+                break;
+        }
+
+        super.onListItemClick(l, v, position, id);
     }
 
     public int saveNote() {
@@ -133,6 +228,10 @@ public class AtyEditNote extends ListActivity {
     private MediaAdapter adapter;
     private NotesDB db;
     private SQLiteDatabase dbRead, dbWrite;
+    private String currentPath = null;
+
+    public static final int REQUEST_CODE_GET_PHOTO = 1;
+    public static final int REQUEST_CODE_GET_VIDEO = 2;
 
     public static final String EXTRA_NOTE_ID = "noteId";
     public static final String EXTRA_NOTE_NAME = "noteName";
@@ -167,9 +266,7 @@ public class AtyEditNote extends ListActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
 
             if (convertView == null) {
-                convertView = LayoutInflater
-                        .from(context)
-                        .inflate(R.layout.media_list_cell, null);
+                convertView = LayoutInflater.from(context).inflate(R.layout.media_list_cell, null);
             }
 
             MediaListCellData data = getItem(position);
@@ -194,8 +291,10 @@ public class AtyEditNote extends ListActivity {
 
             if (path.endsWith(".jpg")) {
                 iconId = R.mipmap.ic_photo;
+                type = MediaType.PHOTO;
             } else if (path.endsWith(".mp4")) {
                 iconId = R.mipmap.ic_video;
+                type = MediaType.VIDEO;
             }
         }
 
@@ -204,8 +303,14 @@ public class AtyEditNote extends ListActivity {
             this.id = id;
         }
 
+        int type = 0;
         int id = -1;
         String path = "";
         int iconId = R.mipmap.ic_launcher;
+    }
+
+    static class MediaType {
+        static final int PHOTO = 1;
+        static final int VIDEO = 2;
     }
 }
