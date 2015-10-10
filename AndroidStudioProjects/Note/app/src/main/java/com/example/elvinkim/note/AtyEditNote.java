@@ -21,6 +21,7 @@ import java.util.List;
 /**
  * Created by jinxh3 on 2015/9/30.
  */
+
 public class AtyEditNote extends ListActivity {
 
     private View.OnClickListener btnClickHandler = new View.OnClickListener() {
