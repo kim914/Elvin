@@ -20,7 +20,7 @@ public class MainActivity extends ListActivity {
             startActivityForResult(new Intent(MainActivity.this, AtyEditNote.class), REQUEST_CODE_ADD_NOTE);
         }
     };
-// test2
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
