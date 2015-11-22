@@ -2,8 +2,8 @@ package com.example.elvin.framelayouttest2;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Message;
 import android.os.Handler;
+import android.os.Message;
 import android.widget.TextView;
 
 import java.util.Timer;
@@ -11,8 +11,6 @@ import java.util.TimerTask;
 
 public class MainActivity extends Activity {
 
-
-    private int currentColor = 0;
 
     // 定义一个颜色数组
     final int[] colors = new int[]{
@@ -23,7 +21,6 @@ public class MainActivity extends Activity {
             R.color.color5,
             R.color.color6
     };
-
     final int[] names = new int[]{
             R.id.view01,
             R.id.view02,
@@ -32,9 +29,8 @@ public class MainActivity extends Activity {
             R.id.view05,
             R.id.view06,
     };
-
     TextView[] views = new TextView[names.length];
-
+    private int currentColor = 0;
     Handler handler = new Handler() {
 
 
@@ -65,7 +61,7 @@ public class MainActivity extends Activity {
                 handler.sendEmptyMessage(0x123);
             }
         }, 0, 200);
-
+//
     }
 
 }
