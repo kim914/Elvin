@@ -61,7 +61,7 @@ public class MainActivity extends Activity {
                 handler.sendEmptyMessage(0x123);
             }
         }, 0, 200);
-//
+
     }
 
 }
