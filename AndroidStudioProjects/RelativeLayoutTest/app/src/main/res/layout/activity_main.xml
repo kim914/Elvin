@@ -10,7 +10,41 @@
     tools:context="com.example.elvin.relativelayouttest.MainActivity">
 
     <TextView
+        android:id="@+id/view01"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:layout_centerInParent="true"
+        android:background="@mipmap/leaf" />
+
+    <TextView
+        android:id="@+id/view02"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/view01"
+        android:layout_alignLeft="@id/view01"
+        android:background="@mipmap/leaf" />
+
+    <TextView
+        android:id="@+id/view03"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/view01"
+        android:layout_below="@id/view01"
+        android:background="@mipmap/leaf" />
+
+    <TextView
+        android:id="@+id/view04"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/view01"
+        android:layout_toLeftOf="@id/view01"
+        android:background="@mipmap/leaf" />
+
+    <TextView
+        android:id="@+id/view05"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/view01"
+        android:layout_toRightOf="@id/view01"
+        android:background="@mipmap/leaf" />
 </RelativeLayout>
